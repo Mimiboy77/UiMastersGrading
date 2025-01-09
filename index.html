@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGPA Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        input {
+            width: 100px;
+            padding: 5px;
+            margin: 5px 0;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>CGPA Calculator (7-Point Scale)</h1>
+    <label for="courseCount">Enter the number of courses:</label>
+    <input type="number" id="courseCount" min="1" required>
+    <button onclick="generateCourseInputs()">Generate</button>
+    <form id="courseForm" style="margin-top: 20px;"></form>
+    <div id="result" style="margin-top: 20px;"></div>
+
+    <script>
+        // Function to generate input fields for courses and units
+        function generateCourseInputs() {
+            const courseCount = parseInt(document.getElementById("courseCount").value);
+            const courseForm = document.getElementById("courseForm");
+            courseForm.innerHTML = ""; // Clear previous inputs
+
+            if (courseCount > 0) {
+                for (let i = 1; i <= courseCount; i++) {
+                    courseForm.innerHTML += `
+                        <div>
+                            <label for="score${i}">Course ${i} Score:</label>
+                            <input type="number" id="score${i}" name="scores" min="0" max="100" required>
+                            <label for="unit${i}">Course ${i} Unit:</label>
+                            <input type="number" id="unit${i}" name="units" min="1" required>
+                        </div>
+                    `;
+                }
+                courseForm.innerHTML += `
+                    <button type="button" onclick="calculateCGPA()">Calculate CGPA</button>
+                `;
+            }
+        }
+
+        // Function to calculate grade point based on the score
+        function calculateGradePoint(score) {
+            if (score >= 70 && score <= 100) return 7.0;
+            if (score >= 65 && score < 70) return 6.0;
+            if (score >= 60 && score < 65) return 5.0;
+            if (score >= 55 && score < 60) return 4.0;
+            if (score >= 50 && score < 55) return 3.0;
+            if (score >= 45 && score < 50) return 2.0;
+            if (score >= 40 && score < 45) return 1.0;
+            return 0.0; // Fail
+        }
+
+        // Function to calculate CGPA
+        function calculateCGPA() {
+            const scores = Array.from(document.querySelectorAll('input[name="scores"]')).map(input => parseFloat(input.value));
+            const units = Array.from(document.querySelectorAll('input[name="units"]')).map(input => parseFloat(input.value));
+            
+            let totalWeightedGradePoints = 0;
+            let totalUnits = 0;
+
+            for (let i = 0; i < scores.length; i++) {
+                const gradePoint = calculateGradePoint(scores[i]);
+                totalWeightedGradePoints += gradePoint * units[i];
+                totalUnits += units[i];
+            }
+
+            const cgpa = (totalWeightedGradePoints / totalUnits).toFixed(2);
+
+            // Display result
+            document.getElementById("result").innerHTML = `
+                <h2>Results</h2>
+                <p><strong>Total Units:</strong> ${totalUnits}</p>
+                <p><strong>CGPA:</strong> ${cgpa}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
